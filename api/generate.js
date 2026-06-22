@@ -7,13 +7,16 @@ export default async function handler(req) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+        'Access-Control-Allow-Headers': 'Content-Type',
       }
     });
   }
 
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    return new Response(JSON.stringify({ error: { message: 'Method not allowed' } }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+    });
   }
 
   try {
@@ -21,7 +24,7 @@ export default async function handler(req) {
     const apiKey = body.apiKey;
 
     if (!apiKey || !apiKey.startsWith('sk-ant-')) {
-      return new Response(JSON.stringify({ error: { message: 'Invalid API key' } }), {
+      return new Response(JSON.stringify({ error: { message: 'Invalid API key format. Make sure it starts with sk-ant-' } }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
@@ -33,7 +36,7 @@ export default async function handler(req) {
 
 Search the web for TODAY's real, current news and generate a complete newsletter briefing.
 
-Return ONLY a valid JSON object — no markdown, no preamble, no backticks:
+Return ONLY a valid JSON object â€” no markdown, no preamble, no backticks:
 
 {
   "readTime": "X min read",
@@ -52,7 +55,7 @@ Return ONLY a valid JSON object — no markdown, no preamble, no backticks:
       "label": "Thought Leader Spotlight",
       "icon": "ti-microphone-2",
       "type": "mixed",
-      "quote": { "text": "a real or paraphrased insight from Allie K. Miller, Dan Martell, Gary Vaynerchuk, Sam Altman, Jensen Huang, or another top AI automation voice", "author": "Name · Context" },
+      "quote": { "text": "a real or paraphrased insight from Allie K. Miller, Dan Martell, Gary Vaynerchuk, Sam Altman, Jensen Huang, or another top AI automation voice", "author": "Name Â· Context" },
       "items": [
         { "tag": "Leader Name", "tagColor": "teal", "headline": "headline", "tldr": "TLDR: summary with <strong>key phrase</strong>.", "source": "Source" }
       ]
@@ -81,7 +84,7 @@ Return ONLY a valid JSON object — no markdown, no preamble, no backticks:
       "icon": "ti-calendar",
       "type": "events",
       "items": [
-        { "month": "JUL", "day": "12", "title": "event title", "meta": "Location · Free or cost" }
+        { "month": "JUL", "day": "12", "title": "event title", "meta": "Location Â· Free or cost" }
       ]
     }
   ]
@@ -112,18 +115,37 @@ Strict rules:
       })
     });
 
-    const data = await anthropicRes.json();
+    // Read response as text first so we can debug if it's not JSON
+    const rawText = await anthropicRes.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch(e) {
+      // Anthropic returned something that wasn't JSON â€” surface it clearly
+      return new Response(JSON.stringify({ 
+        error: { message: 'Anthropic API returned unexpected response: ' + rawText.slice(0, 200) }
+      }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
+    if (!anthropicRes.ok) {
+      const errMsg = data?.error?.message || 'Anthropic API error ' + anthropicRes.status;
+      return new Response(JSON.stringify({ error: { message: errMsg } }), {
+        status: anthropicRes.status,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
 
     return new Response(JSON.stringify(data), {
-      status: anthropicRes.status,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
+      status: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: { message: err.message } }), {
+    return new Response(JSON.stringify({ error: { message: 'Server error: ' + err.message } }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
