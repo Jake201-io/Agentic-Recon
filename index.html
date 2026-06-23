@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Agentic Recon">
+<meta name="theme-color" content="#0d0d1a">
+<link rel="apple-touch-icon" href="https://fav.farm/🕵️">
+<title>Agentic Recon</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0f5; min-height: 100vh; padding: env(safe-area-inset-top, 1rem) 0 calc(env(safe-area-inset-bottom, 0px) + 3rem); }
+  .app { max-width: 420px; margin: 0 auto; padding: 0.5rem 1rem; }
+  .header { background: #0d0d1a; border-radius: 16px; padding: 1.25rem 1.25rem 1rem; margin-bottom: 1rem; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(127,119,221,0.25) 0%, transparent 70%); pointer-events: none; }
+  .header-eyebrow { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+  .recon-badge { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #AFA9EC; background: rgba(127,119,221,0.18); border: 0.5px solid rgba(127,119,221,0.3); padding: 3px 8px; border-radius: 20px; }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #5DCAA5; margin-left: auto; }
+  .live-label { font-size: 9px; color: #5DCAA5; letter-spacing: 0.06em; text-transform: uppercase; }
+  .header-title { font-size: 22px; font-weight: 500; color: #fff; line-height: 1.15; margin-bottom: 4px; }
+  .header-title span { color: #AFA9EC; }
+  .header-sub { font-size: 11px; color: rgba(255,255,255,0.38); }
+  .gen-wrap { margin-bottom: 1rem; }
+  .gen-btn { width: 100%; background: #7F77DD; border: none; border-radius: 12px; padding: 0.875rem 1rem; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s, transform 0.1s; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  .gen-btn:active { transform: scale(0.98); opacity: 0.9; }
+  .gen-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+  .status-bar { display: none; background: #fff; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .status-bar.visible { display: block; }
+  .status-text { font-size: 12px; color: #666; display: flex; align-items: center; gap: 8px; }
+  .spinner { width: 14px; height: 14px; border: 1.5px solid rgba(127,119,221,0.3); border-top-color: #7F77DD; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-steps { display: flex; gap: 4px; margin-top: 8px; }
+  .step-dot { height: 3px; flex: 1; border-radius: 2px; background: rgba(0,0,0,0.08); transition: background 0.4s; }
+  .step-dot.done { background: #7F77DD; }
+  .newsletter { display: none; }
+  .newsletter.visible { display: block; }
+  .date-strip { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; margin-bottom: 0.875rem; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
+  .date-text { font-size: 11px; color: #888; }
+  .read-time { font-size: 11px; color: #aaa; }
+  .section { margin-bottom: 1.25rem; }
+  .section-label { display: flex; align-items: center; gap: 5px; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; color: #aaa; margin-bottom: 8px; }
+  .card { background: #fff; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.875rem 1rem; margin-bottom: 8px; text-decoration: none; display: block; color: inherit; -webkit-tap-highlight-color: transparent; transition: transform 0.1s, box-shadow 0.1s; }
+  .card:active { transform: scale(0.99); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .card-tag { display: inline-block; font-size: 9px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 7px; border-radius: 10px; margin-bottom: 7px; }
+  .tag-purple { background: #EEEDFE; color: #534AB7; }
+  .tag-green { background: #EAF3DE; color: #3B6D11; }
+  .tag-amber { background: #FAEEDA; color: #854F0B; }
+  .tag-pink { background: #FBEAF0; color: #993556; }
+  .tag-teal { background: #E1F5EE; color: #0F6E56; }
+  .tag-blue { background: #E6F1FB; color: #185FA5; }
+  .card-headline { font-size: 14px; font-weight: 500; line-height: 1.4; margin-bottom: 5px; color: #111; }
+  .card-tldr { font-size: 12px; color: #666; line-height: 1.55; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .card-source { font-size: 11px; color: #bbb; }
+  .card-read { font-size: 11px; color: #7F77DD; display: flex; align-items: center; gap: 3px; }
+  .quote-card { border-left: 2px solid #7F77DD; border-radius: 0 10px 10px 0; padding: 0.75rem 1rem; margin-bottom: 8px; background: #f7f6ff; }
+  .quote-text { font-size: 13px; color: #111; line-height: 1.5; font-style: italic; margin-bottom: 5px; }
+  .quote-author { font-size: 11px; color: #888; }
+  .event-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent; transition: transform 0.1s; }
+  .event-card:active { transform: scale(0.99); }
+  .event-date { background: #EEEDFE; border-radius: 8px; padding: 5px 8px; text-align: center; min-width: 42px; flex-shrink: 0; }
+  .event-month { font-size: 8px; color: #534AB7; text-transform: uppercase; font-weight: 500; }
+  .event-day { font-size: 20px; font-weight: 500; color: #534AB7; line-height: 1; }
+  .event-info { flex: 1; }
+  .event-title { font-size: 13px; font-weight: 500; color: #111; margin-bottom: 2px; }
+  .event-meta { font-size: 11px; color: #888; }
+  .event-link { font-size: 11px; color: #7F77DD; margin-top: 3px; }
+  .divider { border: none; border-top: 0.5px solid rgba(0,0,0,0.08); margin: 1rem 0; }
+  .error-box { display: none; background: #FCEBEB; border: 0.5px solid #F09595; border-radius: 10px; padding: 0.875rem 1rem; margin-bottom: 1rem; }
+  .error-box.visible { display: block; }
+  .error-title { font-size: 12px; font-weight: 600; color: #A32D2D; margin-bottom: 4px; }
+  .error-detail { font-size: 11px; color: #A32D2D; line-height: 1.5; word-break: break-all; }
+  .empty-state { text-align: center; padding: 2.5rem 1rem; }
+  .empty-icon { font-size: 36px; color: #ccc; margin-bottom: 12px; }
+  .empty-title { font-size: 15px; font-weight: 500; color: #111; margin-bottom: 6px; }
+  .empty-sub { font-size: 12px; color: #888; line-height: 1.6; }
+  .nl-footer { text-align: center; padding-top: 0.5rem; }
+  .nl-footer p { font-size: 10px; color: #bbb; line-height: 1.6; }
+  .install-banner { background: #0d0d1a; border-radius: 12px; padding: 0.875rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+  .install-icon { font-size: 20px; color: #AFA9EC; flex-shrink: 0; }
+  .install-text { flex: 1; }
+  .install-title { font-size: 12px; font-weight: 500; color: #fff; margin-bottom: 2px; }
+  .install-sub { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.4; }
+  .install-close { font-size: 16px; color: rgba(255,255,255,0.3); cursor: pointer; flex-shrink: 0; padding: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-eyebrow">
+      <span class="recon-badge">Agentic Recon</span>
+      <span class="live-dot"></span>
+      <span class="live-label">AI-Powered</span>
+    </div>
+    <div class="header-title">Your morning<br><span>intelligence briefing.</span></div>
+    <div class="header-sub" id="header-date">Agentic AI &amp; Automation · Daily</div>
+  </div>
+
+  <!-- iOS install banner -->
+  <div class="install-banner" id="installBanner" style="display:none">
+    <div class="install-icon"><i class="ti ti-device-mobile"></i></div>
+    <div class="install-text">
+      <div class="install-title">Add to your home screen</div>
+      <div class="install-sub">Tap <strong style="color:#AFA9EC">Share</strong> then <strong style="color:#AFA9EC">Add to Home Screen</strong> for one-tap morning access</div>
+    </div>
+    <div class="install-close" onclick="dismissBanner()">✕</div>
+  </div>
+
+  <div class="gen-wrap">
+    <button class="gen-btn" id="genBtn" onclick="generateNewsletter()">
+      <i class="ti ti-search"></i> Generate Today's Briefing
+    </button>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="status-text">
+      <div class="spinner"></div>
+      <span id="statusText">Scanning AI news sources...</span>
+    </div>
+    <div class="progress-steps">
+      <div class="step-dot" id="step1"></div>
+      <div class="step-dot" id="step2"></div>
+      <div class="step-dot" id="step3"></div>
+      <div class="step-dot" id="step4"></div>
+      <div class="step-dot" id="step5"></div>
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox">
+    <div class="error-title">⚠ Error — here's what happened:</div>
+    <div class="error-detail" id="errorDetail"></div>
+  </div>
+
+  <div class="newsletter" id="newsletter">
+    <div class="date-strip">
+      <span class="date-text" id="nlDate"></span>
+      <span class="read-time" id="readTime"></span>
+    </div>
+    <div id="nlContent"></div>
+    <div class="nl-footer"><p>Agentic Recon · Built by an AI agent, for an AI thought leader<br>Tap "Generate" anytime to refresh</p></div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon"><i class="ti ti-radar"></i></div>
+    <div class="empty-title">Ready to run recon.</div>
+    <div class="empty-sub">Tap the button above and your AI agent<br>will scan today's AI news, thought leaders,<br>policy updates, and NJ/NY events.</div>
+  </div>
+</div>
+
+<script>
+const STEPS = ["Scanning AI news from Anthropic, OpenAI, Nvidia...","Pulling thought leader content...","Checking policy & regulatory updates...","Searching NJ/NY events & workshops...","Assembling your briefing..."];
+const TAG_COLORS = { purple:'tag-purple', green:'tag-green', amber:'tag-amber', pink:'tag-pink', teal:'tag-teal', blue:'tag-blue' };
+
+function init() {
+  const today = new Date();
+  document.getElementById('header-date').textContent = today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('nlDate').textContent = today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  // Show install banner on iOS Safari (not already installed)
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone;
+  const dismissed = localStorage.getItem('ar_banner_dismissed');
+  if (isIOS && !isStandalone && !dismissed) {
+    document.getElementById('installBanner').style.display = 'flex';
+  }
+}
+init();
+
+function dismissBanner() {
+  document.getElementById('installBanner').style.display = 'none';
+  localStorage.setItem('ar_banner_dismissed', '1');
+}
+
+async function generateNewsletter() {
+  const btn = document.getElementById('genBtn');
+  const statusBar = document.getElementById('statusBar');
+  const errorBox = document.getElementById('errorBox');
+  const newsletter = document.getElementById('newsletter');
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:#fff;width:16px;height:16px;margin-right:8px;display:inline-block;"></div> Running recon...';
+  statusBar.classList.add('visible');
+  errorBox.classList.remove('visible');
+  newsletter.classList.remove('visible');
+  document.getElementById('emptyState').style.display = 'none';
+  for(let i=1;i<=5;i++) document.getElementById('step'+i).classList.remove('done');
+
+  let si = 0;
+  const iv = setInterval(()=>{
+    if(si < STEPS.length){
+      document.getElementById('statusText').textContent = STEPS[si];
+      document.getElementById('step'+(si+1)).classList.add('done');
+      si++;
+    }
+  }, 2000);
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trigger: 'generate' })
+    });
+
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch(e) { throw new Error('Server returned: ' + text.slice(0,300)); }
+
+    if (data.error) throw new Error(data.error.message);
+
+    clearInterval(iv);
+    for(let i=1;i<=5;i++) document.getElementById('step'+i).classList.add('done');
+
+    const fullText = (data.content||[]).map(b=>b.type==='text'?b.text:'').join('');
+    const match = fullText.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No newsletter data in response. Got: ' + fullText.slice(0,200));
+
+    let nl;
+    try { nl = JSON.parse(match[0]); }
+    catch(e) { throw new Error('Could not parse newsletter JSON: ' + match[0].slice(0,200)); }
+
+    renderNewsletter(nl);
+
+  } catch(err) {
+    clearInterval(iv);
+    document.getElementById('errorDetail').textContent = err.message;
+    document.getElementById('errorBox').classList.add('visible');
+    document.getElementById('emptyState').style.display = 'block';
+  } finally {
+    statusBar.classList.remove('visible');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-refresh"></i> Refresh Briefing';
+  }
+}
+
+function renderNewsletter(nl) {
+  document.getElementById('readTime').textContent = nl.readTime||'~5 min read';
+  const c = document.getElementById('nlContent');
+  c.innerHTML = '';
+
+  (nl.sections||[]).forEach((s,i)=>{
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.innerHTML = `<div class="section-label"><i class="ti ${s.icon}"></i> ${s.label}</div>`;
+
+    if(s.type==='mixed' && s.quote){
+      const q = document.createElement('div');
+      q.className = 'quote-card';
+      q.innerHTML = `<div class="quote-text">"${s.quote.text}"</div><div class="quote-author">— ${s.quote.author}</div>`;
+      sec.appendChild(q);
+    }
+
+    if(s.type==='events'){
+      (s.items||[]).forEach(ev=>{
+        const tag = ev.url ? 'a' : 'div';
+        const d = document.createElement(tag);
+        d.className = 'event-card';
+        if (ev.url) { d.href = ev.url; d.target = '_blank'; d.rel = 'noopener'; }
+        d.innerHTML = `
+          <div class="event-date"><div class="event-month">${ev.month}</div><div class="event-day">${ev.day}</div></div>
+          <div class="event-info">
+            <div class="event-title">${ev.title}</div>
+            <div class="event-meta">${ev.meta}</div>
+            ${ev.url ? '<div class="event-link">View event →</div>' : ''}
+          </div>`;
+        sec.appendChild(d);
+      });
+    } else {
+      (s.items||[]).forEach(item=>{
+        const tag = item.url ? 'a' : 'div';
+        const d = document.createElement(tag);
+        d.className = 'card';
+        if (item.url) { d.href = item.url; d.target = '_blank'; d.rel = 'noopener'; }
+        d.innerHTML = `
+          <span class="card-tag ${TAG_COLORS[item.tagColor]||'tag-purple'}">${item.tag}</span>
+          <div class="card-headline">${item.headline}</div>
+          <div class="card-tldr">${item.tldr}</div>
+          <div class="card-footer">
+            <span class="card-source">${item.source ? '· '+item.source : ''}</span>
+            ${item.url ? '<span class="card-read">Read full story <i class="ti ti-arrow-up-right" style="font-size:10px"></i></span>' : ''}
+          </div>`;
+        sec.appendChild(d);
+      });
+    }
+
+    c.appendChild(sec);
+    if(i<(nl.sections.length-1)){const hr=document.createElement('hr');hr.className='divider';c.appendChild(hr);}
+  });
+
+  document.getElementById('newsletter').classList.add('visible');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
