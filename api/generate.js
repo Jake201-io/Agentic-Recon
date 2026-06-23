@@ -9,7 +9,6 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: { message: 'Method not allowed' } });
 
   try {
-    // Use server-side env variable — no API key needed from browser
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return res.status(500).json({ error: { message: 'API key not configured on server. Add ANTHROPIC_API_KEY in Vercel Environment Variables.' } });
 
@@ -33,38 +32,38 @@ Return ONLY a valid JSON object — no markdown, no preamble, no backticks:
     {
       "id": "ai_news", "label": "Today's Big Stories", "icon": "ti-bolt", "type": "cards",
       "items": [
-        { "tag": "Anthropic", "tagColor": "purple", "headline": "headline", "tldr": "TLDR: summary with <strong>key phrase</strong>.", "source": "Source" }
+        { "tag": "Anthropic", "tagColor": "purple", "headline": "headline", "tldr": "TLDR: summary with <strong>key phrase</strong>.", "source": "Source Name", "url": "https://full-article-url.com" }
       ]
     },
     {
       "id": "thought_leaders", "label": "Thought Leader Spotlight", "icon": "ti-microphone-2", "type": "mixed",
       "quote": { "text": "insight from Allie K. Miller, Dan Martell, Gary Vaynerchuk, Sam Altman, or Jensen Huang", "author": "Name · Context" },
       "items": [
-        { "tag": "Leader", "tagColor": "teal", "headline": "headline", "tldr": "TLDR: summary with <strong>key phrase</strong>.", "source": "Source" }
+        { "tag": "Leader", "tagColor": "teal", "headline": "headline", "tldr": "TLDR: summary with <strong>key phrase</strong>.", "source": "Source", "url": "https://full-article-url.com" }
       ]
     },
     {
       "id": "policy", "label": "Policy & Regulation", "icon": "ti-building", "type": "cards",
       "items": [
-        { "tag": "US Policy", "tagColor": "pink", "headline": "headline", "tldr": "TLDR: summary with <strong>key implication</strong>.", "source": "Source" }
+        { "tag": "US Policy", "tagColor": "pink", "headline": "headline", "tldr": "TLDR: summary with <strong>key implication</strong>.", "source": "Source", "url": "https://full-article-url.com" }
       ]
     },
     {
       "id": "cool_tech", "label": "Cool New AI Tech", "icon": "ti-cpu", "type": "cards",
       "items": [
-        { "tag": "New Tool", "tagColor": "blue", "headline": "headline", "tldr": "TLDR: summary with <strong>key feature</strong>.", "source": "Source" }
+        { "tag": "New Tool", "tagColor": "blue", "headline": "headline", "tldr": "TLDR: summary with <strong>key feature</strong>.", "source": "Source", "url": "https://full-article-url.com" }
       ]
     },
     {
       "id": "events", "label": "NJ/NY Events & Learning", "icon": "ti-calendar", "type": "events",
       "items": [
-        { "month": "JUL", "day": "12", "title": "event title", "meta": "Location · Free or cost" }
+        { "month": "JUL", "day": "12", "title": "event title", "meta": "Location · Free or cost", "url": "https://event-url.com" }
       ]
     }
   ]
 }
 
-Rules: ai_news 3 items, thought_leaders 1 quote + 1 item, policy 1 item, cool_tech 2 items, events 2 items. tagColor must be one of: purple green amber pink teal blue. Return ONLY the JSON object nothing else.`
+Rules: ai_news 3 items, thought_leaders 1 quote + 1 item, policy 1 item, cool_tech 2 items, events 2 items. tagColor must be one of: purple green amber pink teal blue. Every item MUST include a real url to the actual article or event page. Return ONLY the JSON object nothing else.`
       }]
     });
 
